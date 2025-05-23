@@ -6,7 +6,7 @@
 /*   By: abostrom <abostrom@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/23 12:46:34 by abostrom          #+#    #+#             */
-/*   Updated: 2025/05/23 21:59:25 by abostrom         ###   ########.fr       */
+/*   Updated: 2025/05/23 23:44:06 by abostrom         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,9 +72,9 @@ char	*ft_strchr(const char *str, int chr)
 	return (NULL);
 }
 
-size_t ft_strlen(const char *string)
+size_t	ft_strlen(const char *string)
 {
-	return ft_strchr(string, '\0') - string;
+	return (ft_strchr(string, '\0') - string);
 }
 
 const char	*find_path_in_env(char **envp)
@@ -93,8 +93,8 @@ const char	*find_path_in_env(char **envp)
 
 void	*ft_memcpy(void *dst, const void *src, size_t size)
 {
-	char *const dst_bytes = (char *) dst;
-	char *const src_bytes = (char *) src;
+	char *const	dst_bytes = (char *) dst;
+	char *const	src_bytes = (char *) src;
 
 	while (size-- != 0)
 		dst_bytes[size] = src_bytes[size];
@@ -106,18 +106,20 @@ char	*find_command_in_path(const char *cmd_name, const char *path)
 	const size_t	cmd_length = ft_strlen(cmd_name);
 	const char		*end;
 	char			*cmd_path;
+	size_t			dir_length;
 
 	while (*path != '\0')
 	{
 		end = path;
 		while (*end != ':' && *end != '\0')
 			end++;
-		cmd_path = malloc(cmd_length + (end - path) + 2);
+		dir_length = end - path;
+		cmd_path = malloc(cmd_length + dir_length + 2);
 		if (cmd_path == NULL)
 			return (NULL);
-		ft_memcpy(cmd_path, path, end - path);
-		cmd_path[end - path] = '/';
-		ft_memcpy(cmd_path + (end - path) + 1, cmd_name, cmd_length + 1);
+		ft_memcpy(cmd_path, path, dir_length);
+		cmd_path[dir_length] = '/';
+		ft_memcpy(cmd_path + dir_length + 1, cmd_name, cmd_length + 1);
 		if (access(cmd_path, F_OK | X_OK) == 0)
 			return (cmd_path);
 		free(cmd_path);
@@ -126,7 +128,7 @@ char	*find_command_in_path(const char *cmd_name, const char *path)
 	return (NULL);
 }
 
-void create_child_process(char *command, char **envp)
+void	create_child_process(char *command, char **envp)
 {
 	const char *const	path = find_path_in_env(envp);
 	char **const		argv = make_argv_array(command);
@@ -141,6 +143,6 @@ void create_child_process(char *command, char **envp)
 int	main(int argc, char **argv, char **envp)
 {
 	if (argc != 2)
-		return -1;
+		return (1);
 	create_child_process(argv[1], envp);
 }
