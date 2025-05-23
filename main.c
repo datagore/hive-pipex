@@ -6,7 +6,7 @@
 /*   By: abostrom <abostrom@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/23 12:46:34 by abostrom          #+#    #+#             */
-/*   Updated: 2025/05/23 17:33:54 by abostrom         ###   ########.fr       */
+/*   Updated: 2025/05/23 17:58:49 by abostrom         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ size_t	ft_strlen(const char *str)
 	return (length);
 }
 
-char	*find_path_in_envp(char **envp)
+char	*find_path_in_env(char **envp)
 {
 	char	*equals;
 
@@ -93,6 +93,16 @@ char	*find_path_in_envp(char **envp)
 		envp++;
 	}
 	return (NULL);
+}
+
+void	*ft_memcpy(void *dst, const void *src, size_t size)
+{
+	char *const dst_bytes = (char *) dst;
+	char *const src_bytes = (char *) src;
+
+	while (size-- != 0)
+		dst_bytes[size] = src_bytes[size];
+	return (dst);
 }
 
 char	*find_command_in_path(const char *cmd_name, char *path)
@@ -109,9 +119,9 @@ char	*find_command_in_path(const char *cmd_name, char *path)
 		cmd_path = malloc(cmd_length + (end - path) + 2);
 		if (cmd_path == NULL)
 			return (NULL);
-		__builtin_memcpy(cmd_path, path, end - path);
+		ft_memcpy(cmd_path, path, end - path);
 		cmd_path[end - path] = '/';
-		__builtin_memcpy(cmd_path + (end - path) + 1, cmd_name, cmd_length + 1);
+		ft_memcpy(cmd_path + (end - path) + 1, cmd_name, cmd_length + 1);
 		if (access(cmd_path, F_OK | X_OK) == 0)
 			return (cmd_path);
 		free(cmd_path);
@@ -122,10 +132,15 @@ char	*find_command_in_path(const char *cmd_name, char *path)
 
 int	main(int argc, char **argv, char **envp)
 {
-	(void) argc;
-	(void) argv;
-	char	*path = find_path_in_envp(envp);
-	char	*cmd = find_command_in_path(argv[1], path);
+	(void) argc, (void) argv, (void) envp;
+	// char	*path = find_path_in_env(envp);
+	char	**params = make_argv_array(argv[1]);
+	/*
+	char	*cmd = find_command_in_path(params[0], path);
 	__builtin_printf("%s\n", cmd);
-	free(cmd);
+	*/
+	for (int i = 0; params[i] != NULL; i++)
+		__builtin_printf("%s\n", params[i]);
+	free(params);
+	// free(cmd);
 }
