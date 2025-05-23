@@ -6,10 +6,11 @@
 /*   By: abostrom <abostrom@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/23 12:46:34 by abostrom          #+#    #+#             */
-/*   Updated: 2025/05/23 17:58:49 by abostrom         ###   ########.fr       */
+/*   Updated: 2025/05/23 21:59:25 by abostrom         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -45,8 +46,8 @@ char	**make_argv_array(char *command)
 	char	**argv;
 	int		argc;
 
-	argc = 1 + split_params(command, NULL);
-	argv = malloc(argc * sizeof(char *));
+	argc = split_params(command, NULL);
+	argv = malloc((argc + 1) * sizeof(char *));
 	if (argv != NULL)
 	{
 		split_params(command, argv);
@@ -57,37 +58,32 @@ char	**make_argv_array(char *command)
 
 int	ft_strncmp(const char *a, const char *b, size_t length)
 {
-	size_t	i;
-
-	i = 0;
-	while ((a[i] != '\0' || b[i] != '\0') && i < length)
-	{
-		if (a[i] != b[i])
-			return (a[i] - b[i]);
-		i++;
-	}
+	while (*a && length--)
+		if (*a++ != *b++)
+			return (a[-1] - b[-1]);
 	return (0);
 }
 
-size_t	ft_strlen(const char *str)
+char	*ft_strchr(const char *str, int chr)
 {
-	size_t	length;
-
-	length = 0;
-	while (str[length] != '\0')
-		length++;
-	return (length);
+	while (*str != '\0' || chr == '\0')
+		if (*str++ == chr)
+			return ((char *) str - 1);
+	return (NULL);
 }
 
-char	*find_path_in_env(char **envp)
+size_t ft_strlen(const char *string)
 {
-	char	*equals;
+	return ft_strchr(string, '\0') - string;
+}
+
+const char	*find_path_in_env(char **envp)
+{
+	const char	*equals;
 
 	while (*envp != NULL)
 	{
-		equals = *envp;
-		while (*equals != '=')
-			equals++;
+		equals = ft_strchr(*envp, '=');
 		if (ft_strncmp(*envp, "PATH", equals - *envp) == 0)
 			return (equals + 1);
 		envp++;
@@ -105,11 +101,11 @@ void	*ft_memcpy(void *dst, const void *src, size_t size)
 	return (dst);
 }
 
-char	*find_command_in_path(const char *cmd_name, char *path)
+char	*find_command_in_path(const char *cmd_name, const char *path)
 {
 	const size_t	cmd_length = ft_strlen(cmd_name);
+	const char		*end;
 	char			*cmd_path;
-	char			*end;
 
 	while (*path != '\0')
 	{
@@ -130,17 +126,21 @@ char	*find_command_in_path(const char *cmd_name, char *path)
 	return (NULL);
 }
 
+void create_child_process(char *command, char **envp)
+{
+	const char *const	path = find_path_in_env(envp);
+	char **const		argv = make_argv_array(command);
+	char *const			pathname = find_command_in_path(argv[0], path);
+
+	execve(pathname, argv, envp);
+	perror("pipex");
+	free(pathname);
+	free(argv);
+}
+
 int	main(int argc, char **argv, char **envp)
 {
-	(void) argc, (void) argv, (void) envp;
-	// char	*path = find_path_in_env(envp);
-	char	**params = make_argv_array(argv[1]);
-	/*
-	char	*cmd = find_command_in_path(params[0], path);
-	__builtin_printf("%s\n", cmd);
-	*/
-	for (int i = 0; params[i] != NULL; i++)
-		__builtin_printf("%s\n", params[i]);
-	free(params);
-	// free(cmd);
+	if (argc != 2)
+		return -1;
+	create_child_process(argv[1], envp);
 }
