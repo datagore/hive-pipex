@@ -6,7 +6,7 @@
 /*   By: abostrom <abostrom@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/23 12:46:34 by abostrom          #+#    #+#             */
-/*   Updated: 2025/05/23 23:44:06 by abostrom         ###   ########.fr       */
+/*   Updated: 2025/05/24 10:13:26 by abostrom         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,9 +77,9 @@ size_t	ft_strlen(const char *string)
 	return (ft_strchr(string, '\0') - string);
 }
 
-const char	*find_path_in_env(char **envp)
+char	*find_path_in_env(char **envp)
 {
-	const char	*equals;
+	char	*equals;
 
 	while (*envp != NULL)
 	{
@@ -130,14 +130,29 @@ char	*find_command_in_path(const char *cmd_name, const char *path)
 
 void	create_child_process(char *command, char **envp)
 {
-	const char *const	path = find_path_in_env(envp);
-	char **const		argv = make_argv_array(command);
-	char *const			pathname = find_command_in_path(argv[0], path);
+	char *const		path = find_path_in_env(envp);
+	char **const	argv = make_argv_array(command);
+	char *const		file = find_command_in_path(argv[0], path);
 
-	execve(pathname, argv, envp);
+	execve(file, argv, envp);
 	perror("pipex");
-	free(pathname);
+	free(file);
 	free(argv);
+}
+
+int transfer(int dst_fd, int src_fd)
+{
+	char	buffer[512];
+	ssize_t	bytes;
+
+	while (1)
+	{
+		bytes = read(src_fd, buffer, sizeof(buffer));
+		if (bytes <= 0)
+			return (bytes == 0);
+		if (write(dst_fd, buffer, bytes) <= 0)
+			return (-1);
+	}
 }
 
 int	main(int argc, char **argv, char **envp)
