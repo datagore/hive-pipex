@@ -6,7 +6,7 @@
 /*   By: abostrom <abostrom@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/23 12:46:34 by abostrom          #+#    #+#             */
-/*   Updated: 2025/05/24 17:55:16 by abostrom         ###   ########.fr       */
+/*   Updated: 2025/05/24 23:57:02 by abostrom         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,51 +130,56 @@ char	*find_command_in_path(const char *cmd_name, const char *path)
 	return (NULL);
 }
 
-void error(const char *message)
+void	error(const char *message)
 {
 	write(2, message, ft_strlen(message));
 }
 
-void exec_command(char *command, char **envp)
+void	exec_command(char *command, char **envp)
 {
 	char *const		path = find_path_in_env(envp);
 	char **const	argv = make_argv_array(command);
 	char *const		file = find_command_in_path(argv[0], path);
+
 	execve(file, argv, envp);
 	perror("pipex");
 	free(file);
 	free(argv);
 }
 
-pid_t	create_child_process(char *command, char **envp, int input, int output, int unused)
+pid_t	fork_and_redirect(int input, int output, int unused)
 {
 	const pid_t	pid = fork();
 
-	if (pid == -1)
-		return (perror("pipex"), 0);
 	if (pid != 0)
 		return (pid);
 	dup2(input, STDIN_FILENO);
 	dup2(output, STDOUT_FILENO);
 	close(unused);
-	exec_command(command, envp);
-	return (pid);
+	return (0);
 }
 
 int	main(int argc, char **argv, char **envp)
 {
+	int		pipes[2];
+	int		files[2];
+	pid_t	pids[2];
+
 	if (argc != 5)
 		return (1);
-	int pipes[2];
 	pipe(pipes);
-	int file1 = open(argv[1], O_RDONLY);
-	int file2 = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	int cmd1 = create_child_process(argv[2], envp, file1, pipes[1], pipes[0]);
-	int cmd2 = create_child_process(argv[3], envp, pipes[0], file2, pipes[1]);
+	files[0] = open(argv[1], O_RDONLY);
+	files[1] = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	pids[0] = fork_and_redirect(files[0], pipes[1], pipes[0]);
+	if (pids[0] == 0)
+		exec_command(argv[2], envp);
+	pids[1] = fork_and_redirect(pipes[0], files[1], pipes[1]);
+	if (pids[1] == 0)
+		exec_command(argv[3], envp);
 	close(pipes[0]);
 	close(pipes[1]);
-	close(file1);
-	close(file2);
-	waitpid(cmd1, NULL, 0);
-	waitpid(cmd2, NULL, 0);
+	close(files[0]);
+	close(files[1]);
+	waitpid(pids[0], NULL, 0);
+	waitpid(pids[1], NULL, 0);
 }

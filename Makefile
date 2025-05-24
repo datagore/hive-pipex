@@ -17,7 +17,12 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re run
+test: all
+	./pipex Makefile "grep clean" "wc -l" output.txt
+	cat output.txt
+	rm -f output.txt
+
+.PHONY: all clean fclean re run test
 .SECONDARY: $(OBJ) $(DEP)
 .SILENT:
 
