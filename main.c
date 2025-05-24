@@ -6,7 +6,7 @@
 /*   By: abostrom <abostrom@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/23 12:46:34 by abostrom          #+#    #+#             */
-/*   Updated: 2025/05/24 23:57:02 by abostrom         ###   ########.fr       */
+/*   Updated: 2025/05/25 00:05:44 by abostrom         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,16 +147,13 @@ void	exec_command(char *command, char **envp)
 	free(argv);
 }
 
-pid_t	fork_and_redirect(int input, int output, int unused)
+pid_t	fork_and_redirect(int in, int out, int unused)
 {
 	const pid_t	pid = fork();
 
-	if (pid != 0)
-		return (pid);
-	dup2(input, STDIN_FILENO);
-	dup2(output, STDOUT_FILENO);
-	close(unused);
-	return (0);
+	if (!pid && (dup2(in, 0) == -1 || dup2(out, 1) == -1 || close(unused) != 0))
+		return (-1);
+	return (pid);
 }
 
 int	main(int argc, char **argv, char **envp)
