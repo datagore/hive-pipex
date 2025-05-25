@@ -1,5 +1,5 @@
 NAME := pipex
-SRC := main.c
+SRC := main.c util.c exec.c
 OBJ := $(SRC:.c=.o)
 DEP := $(SRC:.c=.d)
 CFLAGS := -Wall -Wextra -Werror -MMD -MP
