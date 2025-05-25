@@ -6,7 +6,7 @@
 /*   By: abostrom <abostrom@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/25 14:44:35 by abostrom          #+#    #+#             */
-/*   Updated: 2025/05/25 14:45:25 by abostrom         ###   ########.fr       */
+/*   Updated: 2025/05/25 17:25:15 by abostrom         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ int	ft_strncmp(const char *a, const char *b, size_t length)
 
 char	*ft_strchr(const char *str, int chr)
 {
-	while (*str != '\0' || chr == '\0')
+	while (str != NULL && (*str != '\0' || chr == '\0'))
 		if (*str++ == chr)
 			return ((char *) str - 1);
 	return (NULL);

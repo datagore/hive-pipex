@@ -6,7 +6,7 @@
 /*   By: abostrom <abostrom@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/25 14:48:43 by abostrom          #+#    #+#             */
-/*   Updated: 2025/05/25 14:52:43 by abostrom         ###   ########.fr       */
+/*   Updated: 2025/05/25 18:40:06 by abostrom         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ static char	*find_command_in_path(const char *cmd_name, const char *path)
 	char			*cmd_path;
 	size_t			dir_length;
 
-	while (path != NULL && *path != '\0')
+	while (cmd_name != NULL && path != NULL && *path != '\0')
 	{
 		end = path;
 		while (*end != ':' && *end != '\0')
@@ -99,7 +99,7 @@ static char	*find_command_in_path(const char *cmd_name, const char *path)
 	return (NULL);
 }
 
-void	exec_command(char *command, char **envp)
+int	exec_command(char *command, char **envp)
 {
 	char *const		path = find_path_in_env(envp);
 	char **const	argv = make_argv_array(command);
@@ -110,12 +110,16 @@ void	exec_command(char *command, char **envp)
 		ft_putstr_fd(2, "pipex: command not found: ");
 		ft_putstr_fd(2, command);
 		ft_putstr_fd(2, "\n");
+		free(file);
+		free(argv);
+		return (127);
 	}
 	else
 	{
 		execve(file, argv, envp);
 		perror("pipex");
+		free(file);
+		free(argv);
+		return (EXIT_FAILURE);
 	}
-	free(file);
-	free(argv);
 }
