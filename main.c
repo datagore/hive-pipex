@@ -6,10 +6,11 @@
 /*   By: abostrom <abostrom@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/23 12:46:34 by abostrom          #+#    #+#             */
-/*   Updated: 2025/05/25 00:05:44 by abostrom         ###   ########.fr       */
+/*   Updated: 2025/05/25 00:58:23 by abostrom         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -141,7 +142,10 @@ void	exec_command(char *command, char **envp)
 	char **const	argv = make_argv_array(command);
 	char *const		file = find_command_in_path(argv[0], path);
 
-	execve(file, argv, envp);
+	if (file == NULL)
+		errno = EINVAL;
+	else
+		execve(file, argv, envp);
 	perror("pipex");
 	free(file);
 	free(argv);
@@ -177,6 +181,8 @@ int	main(int argc, char **argv, char **envp)
 	close(pipes[1]);
 	close(files[0]);
 	close(files[1]);
-	waitpid(pids[0], NULL, 0);
-	waitpid(pids[1], NULL, 0);
+	if (pids[0] > 0)
+		waitpid(pids[0], NULL, 0);
+	if (pids[1] > 0)
+		waitpid(pids[1], NULL, 0);
 }

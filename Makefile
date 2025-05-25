@@ -18,7 +18,7 @@ fclean: clean
 re: fclean all
 
 test: all
-	./pipex Makefile "grep clean" "wc -l" output.txt
+	valgrind --track-fds=yes ./pipex Makefile "grep clean" "wc -l" output.txt
 	cat output.txt
 	rm -f output.txt
 
