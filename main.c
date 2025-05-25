@@ -6,7 +6,7 @@
 /*   By: abostrom <abostrom@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/23 12:46:34 by abostrom          #+#    #+#             */
-/*   Updated: 2025/05/25 14:53:15 by abostrom         ###   ########.fr       */
+/*   Updated: 2025/05/25 14:55:22 by abostrom         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 
 #include "pipex.h"
 
-pid_t	create_child(int in, int out, int unused)
+static pid_t	create_child(int in, int out, int unused)
 {
 	const pid_t	pid = fork();
 
