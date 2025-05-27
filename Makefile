@@ -22,8 +22,15 @@ test: all
 	cat output.txt
 	rm -f output.txt
 
-.PHONY: all clean fclean re run test
+hang: all
+	valgrind --track-fds=yes ./pipex abc def "wc -l" output.txt
+	cat output.txt
+	rm -f output.txt
+
+tester:
+	cd tester && bash run.sh
+
+.PHONY: all clean fclean re run test hang tester
 .SECONDARY: $(OBJ) $(DEP)
-.SILENT:
 
 -include $(DEP)
