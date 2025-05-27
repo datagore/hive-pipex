@@ -6,7 +6,7 @@
 /*   By: abostrom <abostrom@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/23 12:46:34 by abostrom          #+#    #+#             */
-/*   Updated: 2025/05/28 00:23:06 by abostrom         ###   ########.fr       */
+/*   Updated: 2025/05/28 00:30:43 by abostrom         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 
 static void	error(int status, const char *message)
 {
-	write(2, "pipex: ", 7);
+	ft_putstr_fd(2, "pipex: ");
 	perror(message);
 	exit(status);
 }
@@ -49,9 +49,9 @@ static void	run_command(char *command, char **envp, int fds[2])
 		free(argv);
 		close(fds[0]);
 		close(fds[1]);
-		write(2, "pipex: ", 7);
-		write(2, command, ft_strlen(command));
-		write(2, ": command not found\n", 20);
+		ft_putstr_fd(2, "pipex: ");
+		ft_putstr_fd(2, command);
+		ft_putstr_fd(2, ": command not found\n");
 		exit(127);
 	}
 	dup2(fds[0], 0);
